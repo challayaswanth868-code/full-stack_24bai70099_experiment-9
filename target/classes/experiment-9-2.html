@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CD Lab | Experiment 9.2</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --purple:#5145cd;
+  --green:#75b99b;
+  --bg:#f1f2f7;
+  --text:#283044;
+  --muted:#858b9b;
+  --border:#e0e3ed;
+}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:12px;
+}
+.topbar{
+  height:35px;
+  background:#243d27;
+  color:#e9f0e8;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 18px;
+  font-size:10px;
+}
+.layout{
+  display:grid;
+  grid-template-columns:165px minmax(0,1fr);
+  min-height:calc(100vh - 35px);
+}
+.sidebar{
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:17px 10px;
+  display:flex;
+  flex-direction:column;
+}
+.brand{
+  font-size:17px;
+  font-weight:bold;
+  color:var(--purple);
+  margin:0 5px 3px;
+}
+.brand-sub{
+  color:#9aa0af;
+  font-size:8px;
+  letter-spacing:1px;
+  margin:0 5px 25px;
+}
+.nav-label{
+  font-size:9px;
+  color:#9ba1af;
+  margin:0 7px 9px;
+}
+.nav button{
+  width:100%;
+  display:block;
+  text-align:left;
+  border:0;
+  padding:10px 9px;
+  margin-bottom:5px;
+  border-radius:7px;
+  color:#687084;
+  background:transparent;
+  cursor:pointer;
+  font-size:11px;
+}
+.nav button:hover,.nav button.active{
+  color:white;
+  background:var(--purple);
+  box-shadow:0 3px 8px #5145cd30;
+}
+.sidebar-bottom{
+  margin-top:auto;
+  background:#e4f3eb;
+  color:#338963;
+  border:0;
+  padding:10px;
+  border-radius:6px;
+  font-size:10px;
+}
+.main{
+  padding:23px;
+  min-width:0;
+}
+.page{display:none}
+.page.active{display:block}
+.page-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:18px;
+}
+h1{font-size:21px;margin:0 0 6px}
+.subtitle{font-size:11px;color:var(--muted)}
+.pill{
+  background:#e8e5ff;
+  color:var(--purple);
+  padding:7px 11px;
+  border-radius:15px;
+  font-size:10px;
+  font-weight:bold;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:18px;
+}
+.metric-card,.panel{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:9px;
+  box-shadow:0 2px 6px #1d284008;
+}
+.metric-card{padding:15px;min-height:94px}
+.metric-card .label{
+  font-size:9px;
+  color:#8c92a1;
+  font-weight:bold;
+  letter-spacing:.5px;
+}
+.metric-card strong{
+  display:block;
+  font-size:19px;
+  margin:9px 0 4px;
+}
+.metric-card small{font-size:9px;color:#9b9fad}
+.accent-purple{border-top:3px solid #7668dc}
+.accent-green{border-top:3px solid #65b99b}
+.accent-orange{border-top:3px solid #e8b56b}
+.accent-pink{border-top:3px solid #d68ab5}
+.panel{
+  padding:17px;
+  margin-bottom:15px;
+}
+.panel h2{font-size:14px;margin:0 0 9px}
+.panel p{color:#747c8e;font-size:11px;line-height:1.7}
+.steps{padding-left:20px;line-height:2;color:#687084;font-size:11px}
+.section-tag{
+  color:var(--purple);
+  background:#eeecff;
+  border-radius:4px;
+  padding:4px 7px;
+  font-size:9px;
+  font-weight:bold;
+}
+.panel-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+button{
+  cursor:pointer;
+  border:1px solid #dfe2ed;
+  background:#f5f6fa;
+  color:#4b5368;
+  border-radius:6px;
+  padding:8px 11px;
+  font-size:10px;
+}
+button:hover{filter:brightness(.97)}
+button.selected,.btn-purple{
+  color:#fff;
+  background:var(--purple);
+  border-color:var(--purple);
+}
+.btn-green{
+  background:#dff3e8;
+  color:#277d59;
+  border-color:#c6e9d6;
+}
+.btn-red{
+  background:#fff0f0;
+  color:#c94f57;
+  border-color:#f5d5d7;
+}
+.btn-group{display:flex;flex-wrap:wrap;gap:7px}
+.traffic-buttons button{min-width:48px}
+.traffic-display{
+  background:#f8f8fc;
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:7px;
+  margin:12px 0;
+}
+.bar-track{
+  height:15px;
+  display:flex;
+  overflow:hidden;
+  border-radius:5px;
+  background:#e5e7ef;
+  margin:10px 0;
+}
+.stable-bar{background:#65b99b;width:90%;transition:width .25s}
+.canary-bar{background:#5145cd;width:10%;transition:width .25s}
+.legend{display:flex;gap:15px;font-size:10px;flex-wrap:wrap}
+.legend span:before{
+  content:"";
+  display:inline-block;
+  height:8px;width:8px;
+  border-radius:2px;
+  margin-right:5px;
+}
+.legend .stable:before{background:#65b99b}
+.legend .canary:before{background:#5145cd}
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.log-box{
+  background:#f7f8fc;
+  border:1px solid #e3e5ef;
+  border-radius:6px;
+  padding:10px;
+  height:190px;
+  overflow:auto;
+  font-family:Consolas,monospace;
+  font-size:10px;
+  line-height:1.7;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.log-line{display:block}
+.stable-text{color:#398965}
+.canary-text{color:#5145cd}
+.error-text{color:#cf535c}
+.success-text{color:#398965}
+.status{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:12px;
+  background:#e0f4e9;
+  color:#29855e;
+  font-size:9px;
+  font-weight:bold;
+}
+.status.warn{background:#fff0d8;color:#a66a1e}
+.status.fail{background:#ffe5e5;color:#bc3e4a}
+input,select{
+  padding:9px;
+  border:1px solid #dfe2ed;
+  border-radius:6px;
+  background:#fff;
+  font-size:11px;
+}
+footer{
+  text-align:center;
+  padding:15px;
+  color:#a0a4b1;
+  font-size:9px;
+}
+@media(max-width:850px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two-col{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .layout{grid-template-columns:115px minmax(0,1fr)}
+  .main{padding:12px}
+  .cards{grid-template-columns:1fr 1fr;gap:8px}
+  .metric-card{padding:10px}
+  .metric-card strong{font-size:16px}
+  .brand{font-size:14px}
+  .sidebar{padding:12px 6px}
+}
+</style>
+</head>
+
+<body>
+<div class="topbar">
+  <span>◧ &nbsp; CD Lab / Continuous Delivery</span>
+  <span>Experiment 9.2 &nbsp; | &nbsp; CI/CD</span>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">◈ CD Lab</div>
+    <div class="brand-sub">RELIABILITY DASHBOARD</div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav">
+      <button class="active" data-page="dashboard">▦ &nbsp; Dashboard</button>
+      <button data-page="canary">◉ &nbsp; Canary Control</button>
+      <button data-page="pipeline">↻ &nbsp; CD Pipeline</button>
+      <button data-page="docker">▣ &nbsp; Docker</button>
+      <button data-page="howto">☷ &nbsp; How to Run</button>
+    </nav>
+
+    <button class="sidebar-bottom" id="healthButton">● All systems ready</button>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="dashboard">
+      <div class="page-heading">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="subtitle">Continuous Integration and Delivery overview</div>
+        </div>
+        <span class="pill">Continuous Integration</span>
+      </div>
+
+      <div class="cards">
+        <div class="metric-card accent-purple">
+          <div class="label">UNIT TESTS</div>
+          <strong>JUnit 5</strong>
+          <small>Service layer and validation</small>
+        </div>
+        <div class="metric-card accent-green">
+          <div class="label">INTEGRATION</div>
+          <strong>MockMvc</strong>
+          <small>Controller and API tests</small>
+        </div>
+        <div class="metric-card accent-orange">
+          <div class="label">CONTRACT</div>
+          <strong>Mockito</strong>
+          <small>Service interaction checks</small>
+        </div>
+        <div class="metric-card accent-pink">
+          <div class="label">CI RUNNER</div>
+          <strong>GitHub Actions</strong>
+          <small>Automated build and test</small>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <h2>What is Continuous Integration?</h2>
+          <span class="status">CI ENABLED</span>
+        </div>
+        <p>
+          Continuous Integration (CI) is a development practice where code changes
+          are integrated into a shared repository frequently. Each change can
+          trigger automated build and test stages to identify problems early.
+        </p>
+        <ol class="steps">
+          <li>Develop features and commit code to Git.</li>
+          <li>GitHub Actions checks out the latest repository code.</li>
+          <li>Maven runs unit tests and integration/contract tests.</li>
+          <li>A successful build is ready for the deployment pipeline.</li>
+          <li>Test reports and build artifacts can be published.</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <h2>CI Pipeline Stages</h2>
+          <button class="btn-purple" onclick="showPage('pipeline')">View CD Pipeline</button>
+        </div>
+        <div class="cards" style="margin-bottom:0">
+          <div class="metric-card"><div class="label">STAGE 01</div><strong>Checkout</strong><small>Retrieve source code</small></div>
+          <div class="metric-card"><div class="label">STAGE 02</div><strong>Build</strong><small>Maven compilation</small></div>
+          <div class="metric-card"><div class="label">STAGE 03</div><strong>Test</strong><small>Run automated tests</small></div>
+          <div class="metric-card"><div class="label">STAGE 04</div><strong>Deploy</strong><small>Release application</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CANARY CONTROL -->
+    <section class="page" id="canary">
+      <div class="page-heading">
+        <div>
+          <h1>Canary Control</h1>
+          <div class="subtitle">Manage traffic between stable and canary releases</div>
+        </div>
+        <span class="pill">Experiment 9.2.2</span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <h2>Canary Traffic Control</h2>
+          <span class="status" id="canaryStatus">READY</span>
+        </div>
+        <p>Change how much traffic goes to the new (canary) version.</p>
+
+        <div class="btn-group traffic-buttons">
+          <button data-traffic="0" onclick="setTraffic(0)">0% (Off)</button>
+          <button data-traffic="10" onclick="setTraffic(10)">10%</button>
+          <button data-traffic="25" onclick="setTraffic(25)">25%</button>
+          <button data-traffic="50" onclick="setTraffic(50)">50%</button>
+          <button data-traffic="100" onclick="promote()">100% Promote</button>
+          <button class="btn-red" onclick="rollback()">Rollback</button>
+          <button onclick="resetStats()">Reset Stats</button>
+        </div>
+
+        <div class="traffic-display">
+          <div class="legend">
+            <span class="stable">Stable: <b id="stablePct">90%</b></span>
+            <span class="canary">Canary: <b id="canaryPct">10%</b></span>
+          </div>
+          <div class="bar-track">
+            <div class="stable-bar" id="stableBar"></div>
+            <div class="canary-bar" id="canaryBar"></div>
+          </div>
+          <div class="subtitle" id="trafficDescription">
+            90% stable traffic · 10% canary traffic
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-purple" onclick="simulateRequests(20)">
+            Simulate 20 user requests
+          </button>
+          <button onclick="simulateRequests(5)">Simulate 5 requests</button>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Request Routing Log</h2>
+            <span class="section-tag" id="requestCount">0 REQUESTS</span>
+          </div>
+          <div class="log-box" id="routingLog">Waiting for requests...
+Click "Simulate 20 user requests" to begin.</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Recent Routes</h2>
+            <span class="section-tag">LIVE LOG</span>
+          </div>
+          <div class="log-box" id="recentLog">No recent requests.</div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="metric-card accent-green">
+          <div class="label">STABLE REQUESTS</div>
+          <strong id="stableCount">0</strong>
+          <small>Requests routed to stable</small>
+        </div>
+        <div class="metric-card accent-purple">
+          <div class="label">CANARY REQUESTS</div>
+          <strong id="canaryCount">0</strong>
+          <small>Requests routed to canary</small>
+        </div>
+        <div class="metric-card accent-orange">
+          <div class="label">TOTAL REQUESTS</div>
+          <strong id="totalRequests">0</strong>
+          <small>Simulated user requests</small>
+        </div>
+        <div class="metric-card accent-pink">
+          <div class="label">ROLLED BACK</div>
+          <strong id="rollbackCount">0</strong>
+          <small>Rollback operations</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- CD PIPELINE -->
+    <section class="page" id="pipeline">
+      <div class="page-heading">
+        <div>
+          <h1>CD Pipeline</h1>
+          <div class="subtitle">Continuous delivery deployment simulation</div>
+        </div>
+        <span class="pill">Experiment 9.2.1</span>
+      </div>
+
+      <div class="panel">
+        <h2>Deploy a Release</h2>
+        <p>Simulate build, test, package, and deployment stages.</p>
+        <label for="releaseVersion">Release version</label><br><br>
+        <input id="releaseVersion" value="v2.0" placeholder="v2.0">
+        <button class="btn-purple" onclick="runPipeline()">Run Pipeline</button>
+        <button onclick="clearPipeline()">Clear Log</button>
+        <div class="traffic-display">
+          <div class="bar-track"><div class="stable-bar" id="pipelineBar" style="width:0%"></div></div>
+          <div id="pipelineProgress">Pipeline waiting to start.</div>
+        </div>
+        <div class="log-box" id="pipelineLog">Ready to run the deployment pipeline.</div>
+      </div>
+      <div class="panel">
+        <h2>Deployment stages</h2>
+        <ol class="steps">
+          <li>Checkout source code</li>
+          <li>Build application using Maven</li>
+          <li>Execute automated tests</li>
+          <li>Package release artifact</li>
+          <li>Deploy and verify health</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- DOCKER -->
+    <section class="page" id="docker">
+      <div class="page-heading">
+        <div>
+          <h1>Docker</h1>
+          <div class="subtitle">Containerization reference</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Example Dockerfile</h2>
+        <p>For a Spring Boot application packaged as a JAR:</p>
+        <div class="log-box">FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]</div>
+        <p>Save as <b>Dockerfile</b> in the project root. This example requires a JAR to have been built first.</p>
+      </div>
+    </section>
+
+    <!-- HOW TO RUN -->
+    <section class="page" id="howto">
+      <div class="page-heading">
+        <div>
+          <h1>How to Run</h1>
+          <div class="subtitle">Experiment 9.2 instructions</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Open in VS Code</h2>
+        <ol class="steps">
+          <li>Save this file as <b>experiment-9-2.html</b> in the static folder.</li>
+          <li>Start your Spring Boot application or use VS Code Live Server.</li>
+          <li>Open <b>/experiment-9-2.html</b> in your browser.</li>
+          <li>Choose Canary Control in the left navigation.</li>
+          <li>Select a traffic percentage and simulate user requests.</li>
+          <li>Check the routing logs and statistics.</li>
+        </ol>
+        <p><b>Note:</b> This HTML version simulates traffic routing in the browser. It does not route real production traffic.</p>
+      </div>
+    </section>
+
+    <footer>CD Lab · FS Experiment 9.2 · 24BAI70099</footer>
+  </main>
+</div>
+
+<script>
+let trafficPercent = 10;
+let stableRequests = 0;
+let canaryRequests = 0;
+let totalRequests = 0;
+let rollbackOperations = 0;
+let routeHistory = [];
+let requestId = 0;
+let pipelineRunning = false;
+
+function showPage(pageId) {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.toggle("active", page.id === pageId);
+  });
+
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === pageId);
+  });
+}
+
+document.querySelectorAll(".nav button").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.page));
+});
+
+function updateTrafficUI() {
+  const stable = 100 - trafficPercent;
+
+  document.getElementById("stablePct").textContent = stable + "%";
+  document.getElementById("canaryPct").textContent = trafficPercent + "%";
+  document.getElementById("stableBar").style.width = stable + "%";
+  document.getElementById("canaryBar").style.width = trafficPercent + "%";
+
+  document.getElementById("trafficMetric")?.textContent;
+  document.getElementById("trafficDescription").textContent =
+    stable + "% stable traffic · " + trafficPercent + "% canary traffic";
+
+  document.querySelectorAll("[data-traffic]").forEach(button => {
+    button.classList.toggle(
+      "selected",
+      Number(button.dataset.traffic) === trafficPercent
+    );
+  });
+
+  document.getElementById("canaryStatus").textContent =
+    trafficPercent === 0 ? "OFF" :
+    trafficPercent === 100 ? "PROMOTED" : "ACTIVE";
+
+  document.getElementById("canaryStatus").className =
+    trafficPercent === 100 ? "status" :
+    trafficPercent === 0 ? "status warn" : "status";
+}
+
+function setTraffic(percent) {
+  trafficPercent = percent;
+  updateTrafficUI();
+}
+
+function promote() {
+  trafficPercent = 100;
+  updateTrafficUI();
+  appendLog("routingLog", "PROMOTION: 100% traffic now assigned to canary.", "canary-text");
+  appendLog("recentLog", "PROMOTED: 100% CANARY", "canary-text");
+}
+
+function rollback() {
+  trafficPercent = 0;
+  rollbackOperations++;
+  updateTrafficUI();
+  updateStats();
+  appendLog("routingLog", "ROLLBACK: All traffic returned to STABLE.", "error-text");
+  appendLog("recentLog", "ROLLBACK: 100% STABLE", "error-text");
+}
+
+function appendLog(elementId, message, className) {
+  const element = document.getElementById(elementId);
+  if (element.textContent.includes("Waiting for requests...") ||
+      element.textContent === "No recent requests.") {
+    element.textContent = "";
+  }
+
+  const line = document.createElement("span");
+  line.className = "log-line " + (className || "");
+  line.textContent = message;
+  element.appendChild(line);
+  element.appendChild(document.createTextNode("\n"));
+  element.scrollTop = element.scrollHeight;
+}
+
+function simulateRequests(count) {
+  for (let i = 0; i < count; i++) {
+    requestId++;
+    totalRequests++;
+
+    const random = Math.random() * 100;
+    const isCanary = random < trafficPercent;
+    const route = isCanary ? "CANARY" : "STABLE";
+
+    if (isCanary) canaryRequests++;
+    else stableRequests++;
+
+    const line = "user-" + String(requestId).padStart(3, "0") +
+      " → " + route + " · stable=" + (100 - trafficPercent) +
+      "% · canary=" + trafficPercent + "%";
+
+    appendLog("routingLog", line, isCanary ? "canary-text" : "stable-text");
+    appendLog("recentLog", route + " · user-" +
+      String(requestId).padStart(3, "0"), isCanary ? "canary-text" : "stable-text");
+
+    routeHistory.push({id: requestId, route: route});
+  }
+
+  document.getElementById("requestCount").textContent = totalRequests + " REQUESTS";
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById("stableCount").textContent = stableRequests;
+  document.getElementById("canaryCount").textContent = canaryRequests;
+  document.getElementById("totalRequests").textContent = totalRequests;
+  document.getElementById("rollbackCount").textContent = rollbackOperations;
+}
+
+function resetStats() {
+  stableRequests = 0;
+  canaryRequests = 0;
+  totalRequests = 0;
+  rollbackOperations = 0;
+  requestId = 0;
+  routeHistory = [];
+
+  document.getElementById("routingLog").textContent = "Waiting for requests...";
+  document.getElementById("recentLog").textContent = "No recent requests.";
+  document.getElementById("requestCount").textContent = "0 REQUESTS";
+
+  updateStats();
+  trafficPercent = 10;
+  updateTrafficUI();
+}
+
+function runPipeline() {
+  if (pipelineRunning) return;
+
+  const version = document.getElementById("releaseVersion").value.trim() || "v2.0";
+  const stages = [
+    "Checkout source code",
+    "Build application",
+    "Run automated tests",
+    "Package release",
+    "Deploy " + version,
+    "Verify deployment health"
+  ];
+
+  pipelineRunning = true;
+  const log = document.getElementById("pipelineLog");
+  const bar = document.getElementById("pipelineBar");
+  const progress = document.getElementById("pipelineProgress");
+  log.textContent = "Starting pipeline for " + version + "...\n";
+  bar.style.width = "0%";
+
+  let index = 0;
+  const timer = setInterval(() => {
+    log.textContent += "✓ " + stages[index] + "\n";
+    index++;
+    bar.style.width = Math.round(index / stages.length * 100) + "%";
+    progress.textContent = "Pipeline progress: " +
+      Math.round(index / stages.length * 100) + "%";
+
+    if (index >= stages.length) {
+      clearInterval(timer);
+      log.textContent += "\nSUCCESS: " + version + " deployment simulation completed.";
+      pipelineRunning = false;
+    }
+  }, 350);
+}
+
+function clearPipeline() {
+  if (pipelineRunning) return;
+  document.getElementById("pipelineLog").textContent = "Ready to run the deployment pipeline.";
+  document.getElementById("pipelineBar").style.width = "0%";
+  document.getElementById("pipelineProgress").textContent = "Pipeline waiting to start.";
+}
+
+updateTrafficUI();
+updateStats();
+</script>
+</body>
+</html>

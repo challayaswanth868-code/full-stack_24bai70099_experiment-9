@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI Lab | Experiment 9.1</title>
+<style>
+:root{
+  --purple:#5145cd;
+  --bg:#f1f2f7;
+  --ink:#252b40;
+  --muted:#8b91a0;
+  --line:#e1e4ed;
+  --green:#72b99b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);font-size:12px}
+.topbar{height:30px;background:#243d27;color:#edf5ed;display:flex;align-items:center;justify-content:space-between;padding:0 15px;font-size:9px}
+.layout{display:grid;grid-template-columns:165px minmax(0,1fr);min-height:calc(100vh - 30px)}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:17px 10px;display:flex;flex-direction:column}
+.brand{font-weight:bold;font-size:17px;color:var(--purple);margin:0 5px 3px}
+.brand small{display:block;color:#a0a4b2;font-size:8px;letter-spacing:1px;margin-top:4px}
+.nav-label{color:#9ba1af;font-size:9px;margin:25px 7px 9px}
+.nav button{display:block;width:100%;text-align:left;border:0;background:transparent;color:#6e7487;border-radius:6px;padding:10px 8px;margin-bottom:5px;font-size:11px;cursor:pointer}
+.nav button:hover,.nav button.active{background:var(--purple);color:white;box-shadow:0 3px 8px #5145cd30}
+.side-bottom{margin-top:auto;padding:10px;background:#e2f3e9;color:#32855f;text-align:center;border-radius:6px;font-size:10px}
+main{min-width:0;padding:22px}
+.page{display:none}
+.page.active{display:block}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+h1{font-size:21px;margin:0 0 5px}
+h2{font-size:14px;margin:0 0 12px}
+h3{font-size:12px;margin:0 0 7px}
+.subtitle{color:var(--muted);font-size:10px}
+.pill{background:#e9e6ff;color:var(--purple);border-radius:15px;padding:6px 10px;font-size:9px;font-weight:bold}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.card,.panel{background:white;border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 5px #18203b08}
+.card{padding:14px;min-height:90px}
+.card .label{color:#9297a5;font-size:9px;font-weight:bold}
+.card strong{display:block;font-size:17px;margin:9px 0 5px}
+.card small{color:#999eab;font-size:9px}
+.purple{border-top:3px solid #7d70e3}
+.green{border-top:3px solid #70bda0}
+.orange{border-top:3px solid #e7b56d}
+.pink{border-top:3px solid #d88ab3}
+.panel{padding:16px;margin-bottom:14px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.panel p{font-size:11px;color:#767d8e;line-height:1.7}
+.steps{padding-left:20px;color:#73798a;font-size:11px;line-height:2}
+button{cursor:pointer;border:1px solid #dfe2ed;background:#f5f6fa;color:#4e5669;border-radius:6px;padding:8px 11px;font-size:10px}
+button:hover{filter:brightness(.97)}
+.btn-primary{background:var(--purple);color:white;border-color:var(--purple)}
+.btn-green{background:#e0f4e9;color:#27815a;border-color:#ccebd9}
+.btn-red{background:#fff0f0;color:#c44955;border-color:#f2d5d8}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.stage-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stage{border:1px solid var(--line);border-radius:7px;padding:12px;background:#fbfcff}
+.stage strong{display:block;margin-bottom:7px;font-size:11px}
+.stage small{color:#8c92a0;font-size:9px}
+.status{display:inline-block;border-radius:12px;background:#e1f4e9;color:#268259;padding:4px 7px;font-size:9px;font-weight:bold}
+.status.fail{background:#ffe7e7;color:#b93846}
+.status.wait{background:#fff1d9;color:#a76b20}
+.log{background:#f7f8fc;border:1px solid var(--line);padding:11px;border-radius:6px;min-height:90px;max-height:200px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-family:Consolas,monospace;font-size:10px;line-height:1.7}
+.form-row{display:flex;gap:8px;flex-wrap:wrap}
+input,select{border:1px solid #dce1eb;padding:9px;border-radius:6px;font-size:11px;min-width:0}
+input{flex:1}
+table{border-collapse:collapse;width:100%;font-size:10px}
+th,td{text-align:left;padding:11px;border-bottom:1px solid #edf0f5}
+th{background:#fafbfe;color:#8c92a0;font-size:9px}
+.table-wrap{overflow-x:auto}
+.endpoint{border-bottom:1px solid #e9ebf2;padding:10px 0}
+.endpoint strong{font-size:10px}
+.endpoint p{margin:5px 0}
+.method{display:inline-block;background:#e0f4e9;color:#238057;padding:4px 6px;border-radius:4px;font-size:9px;font-weight:bold;margin-right:5px}
+footer{text-align:center;padding:16px;color:#a0a5b2;font-size:9px}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}}
+@media(max-width:550px){.layout{grid-template-columns:115px minmax(0,1fr)}.sidebar{padding:12px 6px}main{padding:10px}.brand{font-size:14px}.cards{gap:7px}.card{padding:9px}.card strong{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span>◧ &nbsp; CI Lab &nbsp; | &nbsp; Continuous Integration</span>
+  <span>Experiment 9.1 &nbsp; ● All systems</span>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">◈ CI Lab<small>DEVELOPMENT PIPELINE</small></div>
+  <div class="nav-label">WORKSPACE</div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">▦ Dashboard</button>
+    <button data-page="testcenter">✓ Test Center</button>
+    <button data-page="api">⌘ API Explorer</button>
+    <button data-page="howto">☷ How to Run</button>
+  </nav>
+  <button class="side-bottom" onclick="checkHealth()">● Check API</button>
+</aside>
+
+<main>
+<!-- VIEW 1: CI DASHBOARD -->
+<section class="page active" id="dashboard">
+  <div class="page-head">
+    <div><h1>Dashboard</h1><div class="subtitle">Continuous integration overview</div></div>
+    <span class="pill">Continuous Integration</span>
+  </div>
+
+  <div class="cards">
+    <div class="card purple">
+      <div class="label">UNIT TESTS</div>
+      <strong style="color:#6656d7">JUnit 5</strong>
+      <small>Service layer and validation</small>
+    </div>
+    <div class="card green">
+      <div class="label">INTEGRATION</div>
+      <strong style="color:#269d78">MockMvc</strong>
+      <small>Controller and API tests</small>
+    </div>
+    <div class="card orange">
+      <div class="label">CONTRACT</div>
+      <strong style="color:#d28b2e">Mockito</strong>
+      <small>Service interaction checks</small>
+    </div>
+    <div class="card pink">
+      <div class="label">CI RUNNER</div>
+      <strong style="color:#c25a91">GitHub Actions</strong>
+      <small>Automated build and tests</small>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>What is Continuous Integration?</h2>
+    <p>
+      Continuous Integration (CI) is a development practice where code changes
+      are integrated into a shared repository frequently. Each change can
+      trigger an automated build and test process, helping teams find issues early.
+    </p>
+    <ol class="steps">
+      <li>Develop features and commit code to Git.</li>
+      <li>GitHub Actions checks out the latest repository code.</li>
+      <li>Maven runs unit and integration tests.</li>
+      <li>A successful build is ready for the next pipeline stage.</li>
+      <li>Test reports and build artifacts can be published.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- VIEW 2: TEST CENTER -->
+<section class="page" id="testcenter">
+  <div class="page-head">
+    <div><h1>Dashboard</h1><div class="subtitle">Build reliability and automated test results</div></div>
+    <span class="pill">Experiment 9.1</span>
+  </div>
+
+  <div class="cards">
+    <div class="card purple"><div class="label">TOTAL BUILDS</div><strong id="buildCount">1</strong><small>Pipeline executions</small></div>
+    <div class="card green"><div class="label">PASSED TESTS</div><strong id="passCount">4</strong><small>Successful checks</small></div>
+    <div class="card orange"><div class="label">FAILED TESTS</div><strong id="failCount">0</strong><small>Checks failed</small></div>
+    <div class="card pink"><div class="label">API REQUESTS</div><strong id="apiCount">0</strong><small>Requests made in this session</small></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Pipeline Overview</h2><span class="status" id="pipelineStatus">READY</span></div>
+    <p>Run the local demo stages. Real build and test execution should be performed through Maven or your CI workflow.</p>
+    <div class="stage-grid">
+      <div class="stage"><strong>▣ Build</strong><small>Compile source code</small><p><span class="status">READY</span></p></div>
+      <div class="stage"><strong>✓ Unit Tests</strong><small>Validate service layer</small><p><span class="status">READY</span></p></div>
+      <div class="stage"><strong>⌘ API Tests</strong><small>Check REST endpoints</small><p><span class="status" id="apiStage">READY</span></p></div>
+      <div class="stage"><strong>⇄ Contract Check</strong><small>Validate service interactions</small><p><span class="status">READY</span></p></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="runDemo()">▶ Run CI Demo</button>
+      <button onclick="resetDemo()">Reset</button>
+    </div>
+    <div class="log" id="pipelineLog" style="margin-top:12px">SUCCESS: All four demo checks are ready. Run the demo to see pipeline activity.</div>
+  </div>
+
+  <div class="two-col">
+    <div class="panel">
+      <h2>Recent Activity</h2>
+      <div class="log" id="activityLog">✓ Dashboard initialized
+✓ CI pipeline stages loaded
+✓ Test center ready</div>
+    </div>
+    <div class="panel">
+      <h2>Testing Levels</h2>
+      <div class="stage"><strong>Unit Testing</strong><small>JUnit 5 · Isolated service logic</small><p><span class="status">READY</span></p></div>
+      <div class="stage"><strong>Integration Testing</strong><small>MockMvc · REST controller behavior</small><p><span class="status">READY</span></p></div>
+      <div class="stage"><strong>Contract Testing</strong><small>Mockito · Dependency interactions</small><p><span class="status">READY</span></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIEW 3: API EXPLORER -->
+<section class="page" id="api">
+  <div class="page-head">
+    <div><h1>API Explorer</h1><div class="subtitle">Test the REST API directly from this browser</div></div>
+    <span class="pill">REST API</span>
+  </div>
+
+  <div class="two-col">
+    <div class="panel">
+      <h2>＋ Create Item</h2>
+      <p>Submit an item to the backend API. The endpoint must exist in your Spring Boot application.</p>
+      <form id="itemForm">
+        <label for="itemName">Item name</label>
+        <div class="form-row" style="margin-top:8px">
+          <input id="itemName" placeholder="e.g. Contract Test" required>
+          <button class="btn-primary" type="submit">Create Item</button>
+        </div>
+      </form>
+      <div class="log" id="apiOutput" style="margin-top:12px">Results appear here.</div>
+    </div>
+
+    <div class="panel">
+      <h2>⇄ Endpoint Reference</h2>
+      <div class="endpoint">
+        <strong><span class="method">GET</span>/api/students/health</strong>
+        <p>Check API health status.</p>
+      </div>
+      <div class="endpoint">
+        <strong><span class="method">GET</span>/api/students</strong>
+        <p>Retrieve all student records.</p>
+      </div>
+      <div class="endpoint">
+        <strong><span class="method" style="background:#e8e5ff;color:#5145cd">POST</span>/api/items</strong>
+        <p>Create an item using a JSON request body.</p>
+      </div>
+      <div class="log">Example JSON:
+{
+  "name": "JUnit 5 Unit Test"
+}</div>
+      <button onclick="checkHealth()">Check API Health</button>
+      <button onclick="loadStudents()">Load Students</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Items / API Response</h2><button onclick="loadStudents()">Refresh Items</button></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Status</th></tr></thead>
+        <tbody id="itemsBody">
+          <tr><td>1</td><td>JUnit 5 Unit Test</td><td><span class="status">PASSED</span></td></tr>
+          <tr><td>2</td><td>MockMvc API Test</td><td><span class="status">PASSED</span></td></tr>
+          <tr><td>3</td><td>Mockito Contract Test</td><td><span class="status">PASSED</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- VIEW 4: HOW TO RUN -->
+<section class="page" id="howto">
+  <div class="page-head"><div><h1>How to Run</h1><div class="subtitle">Experiment 9.1 instructions</div></div></div>
+  <div class="panel">
+    <h2>Start the Spring Boot application</h2>
+    <ol class="steps">
+      <li>Open the project folder in VS Code.</li>
+      <li>Open the terminal at the project root.</li>
+      <li>Run <b>mvn spring-boot:run</b>.</li>
+      <li>Open <b>http://localhost:8080</b> in your browser.</li>
+      <li>Use Dashboard, Test Center, and API Explorer from the left sidebar.</li>
+    </ol>
+    <h2>Run automated tests</h2>
+    <div class="log">mvn clean test
+mvn package</div>
+    <p>The dashboard's demo button simulates stage activity. Use Maven to execute actual Java tests.</p>
+  </div>
+</section>
+
+<footer>FS Experiment 9.1 · Continuous Integration Lab · 24BAI70099</footer>
+</main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let builds = 1;
+let passed = 4;
+let failed = 0;
+let apiRequests = 0;
+let demoRunning = false;
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.toggle("active", page.id === button.dataset.page);
+    });
+    document.querySelectorAll("[data-page]").forEach(nav => {
+      nav.classList.toggle("active", nav === button);
+    });
+  });
+});
+
+function addActivity(message) {
+  $("activityLog").textContent =
+    new Date().toLocaleTimeString() + "  " + message + "\n" +
+    $("activityLog").textContent;
+}
+
+function updateStats() {
+  $("buildCount").textContent = builds;
+  $("passCount").textContent = passed;
+  $("failCount").textContent = failed;
+  $("apiCount").textContent = apiRequests;
+}
+
+function runDemo() {
+  if (demoRunning) return;
+  demoRunning = true;
+  builds++;
+  updateStats();
+
+  const stages = [
+    "Checking out source code...",
+    "Compiling application...",
+    "Running JUnit 5 unit tests...",
+    "Running MockMvc integration tests...",
+    "Running Mockito contract checks...",
+    "Pipeline demo completed successfully."
+  ];
+
+  let index = 0;
+  $("pipelineLog").textContent = "";
+  $("pipelineStatus").textContent = "RUNNING";
+
+  const timer = setInterval(() => {
+    $("pipelineLog").textContent += "✓ " + stages[index] + "\n";
+    addActivity(stages[index]);
+    index++;
+
+    if (index >= stages.length) {
+      clearInterval(timer);
+      $("pipelineStatus").textContent = "SUCCESS";
+      passed += 4;
+      updateStats();
+      demoRunning = false;
+    }
+  }, 450);
+}
+
+function resetDemo() {
+  if (demoRunning) return;
+  $("pipelineLog").textContent = "Pipeline reset. Ready to run the demo.";
+  $("pipelineStatus").textContent = "READY";
+}
+
+async function checkHealth() {
+  apiRequests++;
+  updateStats();
+  $("apiOutput").textContent = "Checking /api/students/health ...";
+
+  try {
+    const response = await fetch("/api/students/health");
+    const body = await response.text();
+
+    $("apiOutput").textContent =
+      "GET /api/students/health\nHTTP " + response.status + "\n" + body;
+
+    $("apiStage").textContent = response.ok ? "PASSED" : "FAILED";
+    $("apiStage").className = response.ok ? "status" : "status fail";
+    addActivity("API health check returned HTTP " + response.status);
+  } catch (error) {
+    $("apiOutput").textContent =
+      "Could not connect to the API.\n" +
+      "Check that Spring Boot is running on port 8080.\n" + error.message;
+
+    $("apiStage").textContent = "OFFLINE";
+    $("apiStage").className = "status fail";
+    addActivity("API health check failed");
+  }
+}
+
+async function loadStudents() {
+  apiRequests++;
+  updateStats();
+  $("apiOutput").textContent = "Loading /api/students ...";
+
+  try {
+    const response = await fetch("/api/students");
+    const data = await response.json();
+
+    $("apiOutput").textContent =
+      "GET /api/students\nHTTP " + response.status + "\n" +
+      JSON.stringify(data, null, 2);
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const list = Array.isArray(data) ? data :
+      (Array.isArray(data.content) ? data.content : []);
+
+    $("itemsBody").innerHTML = "";
+
+    list.forEach((item, index) => {
+      const row = document.createElement("tr");
+      const id = document.createElement("td");
+      const name = document.createElement("td");
+      const status = document.createElement("td");
+
+      id.textContent = item.id ?? index + 1;
+      name.textContent = item.name ?? item.studentName ?? JSON.stringify(item);
+      status.textContent = "RETRIEVED";
+      row.append(id, name, status);
+      $("itemsBody").appendChild(row);
+    });
+
+    addActivity("Student list loaded from API");
+  } catch (error) {
+    $("apiOutput").textContent += "\n\nAPI request failed: " + error.message;
+    addActivity("Unable to load students");
+  }
+}
+
+$("itemForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const name = $("itemName").value.trim();
+  if (!name) return;
+
+  apiRequests++;
+  updateStats();
+  $("apiOutput").textContent = "Sending POST /api/items ...";
+
+  try {
+    const response = await fetch("/api/items", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({name})
+    });
+
+    const body = await response.text();
+    $("apiOutput").textContent =
+      "POST /api/items\nHTTP " + response.status + "\n" + body;
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    addActivity("Created item: " + name);
+    $("itemName").value = "";
+  } catch (error) {
+    $("apiOutput").textContent +=
+      "\n\nCreation failed. Confirm that POST /api/items exists in your backend.\n" +
+      error.message;
+  }
+});
+
+updateStats();
+</script>
+</body>
+</html>
